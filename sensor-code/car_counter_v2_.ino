@@ -13,7 +13,7 @@ HCSR04 hc(TRIG_PIN, ECHO_PIN);
 
 long carCount = 0;
 
-// Hysteresis thresholds (make adjustments)
+//  thresholds (make adjustments)
 const float ENTER_CM = 30.0;  // car considered present at/under this
 const float EXIT_CM  = 40.0;  // car considered gone at/over this (must be > ENTER)
 
