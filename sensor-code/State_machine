@@ -1,0 +1,50 @@
+#include <HCSR04.h>
+
+HCSR04 hc(TRIG_PIN, ECHO_PIN);
+
+const float TRIGGER_CM       = 150.0; // adjust to your gate
+const unsigned long COOLDOWN_MS = 1500;
+const int LOOP_DELAY_MS      = 50;
+
+enum State { IDLE, CAR_PRESENT, COOLDOWN };
+State currentState = IDLE;
+
+long carCount = 0;
+unsigned long cooldownStart = 0;
+
+void setup() {
+  Serial.begin(9600);
+}
+
+void loop() {
+  float dist = hc.dist();
+  if (dist <= 0 || dist > 500) { delay(LOOP_DELAY_MS); return; }
+
+  switch (currentState) {
+
+    case IDLE:
+      if (dist < TRIGGER_CM) {
+        carCount++;
+        Serial.print("Car! Total: ");
+        Serial.println(carCount);
+        currentState = CAR_PRESENT;
+      }
+      break;
+
+    case CAR_PRESENT:
+      if (dist >= TRIGGER_CM) {
+        cooldownStart = millis();
+        currentState = COOLDOWN;
+      }
+      break;
+
+    case COOLDOWN:
+      if (millis() - cooldownStart >= COOLDOWN_MS) {
+        currentState = IDLE;
+      }
+      break;
+  } 
+
+
+  delay(LOOP_DELAY_MS);
+
